@@ -1,0 +1,12 @@
+{
+  "runs": [
+    {
+      "run_id": "run-init-001",
+      "timestamp": "2026-10-01T00:00:00Z",
+      "job": "baseline_climatology_build",
+      "status": "completed",
+      "records_processed": 1250000,
+      "output_cells": 45000
+    }
+  ]
+}

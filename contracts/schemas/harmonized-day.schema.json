@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "HarmonizedDay",
+  "description": "Standardized cross-sensor calibrated daily fire activity record.",
+  "type": "object",
+  "required": [
+    "cell_id",
+    "date",
+    "harmonized_activity_index",
+    "calibrated_frp",
+    "confidence_level"
+  ],
+  "properties": {
+    "cell_id": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "harmonized_activity_index": {
+      "type": "number",
+      "minimum": 0.0
+    },
+    "calibrated_frp": {
+      "type": "number",
+      "minimum": 0.0
+    },
+    "effective_fire_area_ha": {
+      "type": "number",
+      "minimum": 0.0
+    },
+    "confidence_level": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "coverage_quality_factor": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "calibration_model_version": {
+      "type": "string"
+    }
+  }
+}

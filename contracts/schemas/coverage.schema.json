@@ -1,0 +1,51 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CoverageMetric",
+  "description": "Observation coverage metrics, overpass density, and cloud obscuration.",
+  "type": "object",
+  "required": [
+    "aoi_id",
+    "date",
+    "overpass_count",
+    "detectability_index",
+    "coverage_fraction"
+  ],
+  "properties": {
+    "aoi_id": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "overpass_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "sensors": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "coverage_fraction": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "cloud_cover_fraction": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "detectability_index": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0
+    },
+    "observation_gap_hours": {
+      "type": "number",
+      "minimum": 0.0
+    }
+  }
+}

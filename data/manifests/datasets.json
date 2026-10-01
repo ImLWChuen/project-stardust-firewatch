@@ -1,0 +1,63 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2026-10-01T00:00:00Z",
+  "datasets": [
+    {
+      "id": "modis_c6_1",
+      "instrument": "MODIS",
+      "satellites": [
+        "Terra",
+        "Aqua"
+      ],
+      "spatial_resolution": "1km",
+      "format": "csv",
+      "temporal_range": [
+        "2000-11-01",
+        "present"
+      ],
+      "source": "NASA FIRMS"
+    },
+    {
+      "id": "viirs_snpp_375m",
+      "instrument": "VIIRS",
+      "satellites": [
+        "Suomi-NPP"
+      ],
+      "spatial_resolution": "375m",
+      "format": "csv",
+      "temporal_range": [
+        "2012-01-20",
+        "present"
+      ],
+      "source": "NASA FIRMS"
+    },
+    {
+      "id": "viirs_noaa20_375m",
+      "instrument": "VIIRS",
+      "satellites": [
+        "NOAA-20"
+      ],
+      "spatial_resolution": "375m",
+      "format": "csv",
+      "temporal_range": [
+        "2018-01-05",
+        "present"
+      ],
+      "source": "NASA FIRMS"
+    },
+    {
+      "id": "viirs_noaa21_375m",
+      "instrument": "VIIRS",
+      "satellites": [
+        "NOAA-21"
+      ],
+      "spatial_resolution": "375m",
+      "format": "csv",
+      "temporal_range": [
+        "2023-01-01",
+        "present"
+      ],
+      "source": "NASA FIRMS"
+    }
+  ]
+}

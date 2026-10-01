@@ -1,0 +1,97 @@
+openapi: 3.1.0
+info:
+  title: Project Stardust - FireWatch API
+  version: 1.0.0
+  description: >
+    API specification for cross-sensor satellite fire harmonization,
+    coverage metrics, agricultural burning calendar predictions, and anomaly detection.
+paths:
+  /api/v1/health:
+    get:
+      summary: Service Health Check
+      responses:
+        '200':
+          description: OK
+  /api/v1/aoi:
+    get:
+      summary: List all monitored Areas of Interest
+      responses:
+        '200':
+          description: List of AOIs
+    post:
+      summary: Register a new AOI
+      responses:
+        '201':
+          description: AOI created
+  /api/v1/calendar/{aoi_id}:
+    get:
+      summary: Get burning calendar risk window predictions
+      parameters:
+        - name: aoi_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: year
+          in: query
+          schema:
+            type: integer
+            default: 2026
+      responses:
+        '200':
+          description: Burning calendar risk matrix
+  /api/v1/hotspots:
+    get:
+      summary: Retrieve active and historical fire hotspots
+      parameters:
+        - name: aoi_id
+          in: query
+          schema:
+            type: string
+        - name: start_date
+          in: query
+          schema:
+            type: string
+        - name: end_date
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Hotspot observation list
+  /api/v1/coverage/{aoi_id}:
+    get:
+      summary: Query satellite observation coverage and gaps
+      parameters:
+        - name: aoi_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Coverage report
+  /api/v1/critical-periods/{aoi_id}:
+    get:
+      summary: Query critical agricultural burning alert periods
+      parameters:
+        - name: aoi_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Critical periods list
+  /api/v1/data-status:
+    get:
+      summary: Ingestion freshness and pipeline manifest status
+      responses:
+        '200':
+          description: Data status
+  /api/v1/statistics/summary:
+    get:
+      summary: System-wide observation counts and harmonized cells
+      responses:
+        '200':
+          description: Statistics summary

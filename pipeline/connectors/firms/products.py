@@ -1,0 +1,9 @@
+"""Product codes supported by NASA FIRMS."""
+
+PRODUCTS = {
+    "MODIS_NRT": "MODIS_NRT",
+    "MODIS_SP": "MODIS_SP",
+    "VIIRS_SNPP_NRT": "VIIRS_SNPP_NRT",
+    "VIIRS_NOAA20_NRT": "VIIRS_NOAA20_NRT",
+    "VIIRS_NOAA21_NRT": "VIIRS_NOAA21_NRT"
+}

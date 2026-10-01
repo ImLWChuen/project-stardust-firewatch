@@ -1,0 +1,60 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AnomalyRecord",
+  "description": "Statistical anomaly rating comparing current activity against seasonal climatological baseline.",
+  "type": "object",
+  "required": [
+    "entity_id",
+    "date",
+    "z_score",
+    "percentile",
+    "severity"
+  ],
+  "properties": {
+    "entity_id": {
+      "type": "string"
+    },
+    "entity_type": {
+      "type": "string",
+      "enum": [
+        "cell",
+        "aoi",
+        "region"
+      ]
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "observed_activity": {
+      "type": "number"
+    },
+    "climatological_mean": {
+      "type": "number"
+    },
+    "climatological_std": {
+      "type": "number"
+    },
+    "z_score": {
+      "type": "number"
+    },
+    "percentile": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 100.0
+    },
+    "severity": {
+      "type": "string",
+      "enum": [
+        "normal",
+        "low",
+        "moderate",
+        "high",
+        "critical"
+      ]
+    },
+    "critical_period_flag": {
+      "type": "boolean"
+    }
+  }
+}
