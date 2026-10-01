@@ -1,0 +1,9 @@
+sensors:
+  modis:
+    platforms: ["Terra", "Aqua"]
+    resolution_m: 1000
+    bands: ["4um", "11um"]
+  viirs:
+    platforms: ["Suomi-NPP", "NOAA-20", "NOAA-21"]
+    resolution_m: 375
+    bands: ["I4", "I5"]

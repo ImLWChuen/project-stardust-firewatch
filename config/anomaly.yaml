@@ -1,0 +1,4 @@
+anomaly:
+  baseline_years: [2012, 2024]
+  rolling_window_days: 15
+  zscore_threshold_critical: 2.5

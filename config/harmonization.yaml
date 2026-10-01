@@ -1,0 +1,7 @@
+harmonization:
+  grid_resolution_deg: 0.01
+  temporal_dedup_window_minutes: 20
+  model:
+    alpha: 1.15
+    beta: 2.30
+    weight_frp: 0.65

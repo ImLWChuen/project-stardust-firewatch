@@ -1,0 +1,13 @@
+regions:
+  malaysia:
+    name: "Kedah Basin"
+    bbox: [100.0, 5.5, 101.0, 6.5]
+  indonesia:
+    name: "Riau Peatland"
+    bbox: [101.0, -0.5, 102.5, 1.5]
+  india:
+    name: "Punjab Agricultural Belt"
+    bbox: [74.5, 29.5, 76.5, 32.0]
+  north_america:
+    name: "California Central Valley"
+    bbox: [-122.0, 35.0, -119.0, 39.0]
