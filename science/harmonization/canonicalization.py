@@ -1,24 +1,70 @@
 """Data canonicalization, schema standardization, and confidence filtering."""
-from typing import Dict, Any, List
+from __future__ import annotations
+
+from typing import Any
+
 import pandas as pd
-import numpy as np
+
+from pipeline.preprocessing.normalize_fields import (
+    _is_missing,
+    normalize_acq_date,
+    normalize_acq_time,
+    normalize_confidence,
+    normalize_fields,
+    normalize_satellite_name,
+    normalize_sensor_name,
+)
+from pipeline.preprocessing.quality_control import filter_invalid_rows
 
 REQUIRED_CANONICAL_COLUMNS = [
-    "latitude", "longitude", "acq_date", "acq_time", 
-    "satellite", "instrument", "confidence", "frp", "daynight"
+    "latitude",
+    "longitude",
+    "acq_date",
+    "acq_time",
+    "satellite",
+    "instrument",
+    "confidence",
+    "frp",
+    "daynight",
 ]
 
-def canonicalize_observation(record: Dict[str, Any]) -> Dict[str, Any]:
-    """Standardize individual raw fire record into canonical schema."""
+
+def canonicalize_observation(record: dict[str, Any]) -> dict[str, Any]:
+    """Standardize an individual raw fire record into the canonical observation schema.
+
+    Uses the explicit satellite and sensor lookup tables from
+    `pipeline.preprocessing.normalize_fields` so VIIRS platforms (such as
+    NOAA-20 and NOAA-21) are never misclassified as MODIS.
+    """
+    if not isinstance(record, dict):
+        raise TypeError("record must be a dict.")
+
     lat = float(record.get("latitude", 0.0))
     lon = float(record.get("longitude", 0.0))
     frp = float(record.get("frp", 0.0))
-    acq_date = str(record.get("acq_date", "")).strip()
-    acq_time = str(record.get("acq_time", "0000")).zfill(4)
-    satellite = str(record.get("satellite", "Unknown")).upper()
-    instrument = str(record.get("instrument", "MODIS" if "T" in satellite or "A" in satellite else "VIIRS"))
-    confidence = str(record.get("confidence", "nominal"))
-    daynight = str(record.get("daynight", "D")).upper()
+    acq_date = normalize_acq_date(record.get("acq_date")) or str(
+        record.get("acq_date", "")
+    ).strip()
+    acq_time = normalize_acq_time(record.get("acq_time")) or str(
+        record.get("acq_time", "0000")
+    ).strip().zfill(4)
+
+    raw_sat = record.get("satellite")
+    mapped_sat, sat_sensor = normalize_satellite_name(raw_sat)
+
+    raw_inst = record.get("instrument") if not _is_missing(record.get("instrument")) else record.get("sensor")
+    mapped_inst = normalize_sensor_name(raw_inst)
+    instrument = mapped_inst if mapped_inst is not None else sat_sensor
+
+    satellite = mapped_sat
+    if satellite is None and not _is_missing(raw_sat):
+        satellite = str(raw_sat).strip()
+
+    raw_conf, norm_conf = normalize_confidence(record.get("confidence"), instrument)
+    confidence = raw_conf if raw_conf is not None else record.get("confidence")
+
+    raw_dn = record.get("daynight")
+    daynight = str(raw_dn).strip().upper() if not _is_missing(raw_dn) else None
 
     return {
         "latitude": lat,
@@ -27,20 +73,22 @@ def canonicalize_observation(record: Dict[str, Any]) -> Dict[str, Any]:
         "acq_time": acq_time,
         "satellite": satellite,
         "instrument": instrument,
+        "sensor": instrument,
         "confidence": confidence,
+        "confidence_norm": norm_conf,
         "frp": frp,
         "daynight": daynight,
     }
 
-def canonicalize_fire_dataframe(df: pd.DataFrame, min_confidence: float = 30.0) -> pd.DataFrame:
-    """Clean, filter, and cast fire detection DataFrame to canonical format."""
-    cleaned = df.dropna(subset=["latitude", "longitude", "acq_date"]).copy()
-    cleaned["latitude"] = pd.to_numeric(cleaned["latitude"], errors="coerce")
-    cleaned["longitude"] = pd.to_numeric(cleaned["longitude"], errors="coerce")
-    cleaned = cleaned.dropna(subset=["latitude", "longitude"])
-    
-    # Standardize time format
-    if "acq_time" in cleaned.columns:
-        cleaned["acq_time"] = cleaned["acq_time"].astype(str).str.zfill(4)
-        
-    return cleaned
+
+def canonicalize_fire_dataframe(
+    df: pd.DataFrame,
+    min_confidence: float | None = None,
+) -> pd.DataFrame:
+    """Clean, normalize, and optionally filter a fire detection DataFrame."""
+    if not isinstance(df, pd.DataFrame):
+        raise TypeError("df must be a pandas DataFrame.")
+    norm_df = normalize_fields(df)
+    if min_confidence is not None:
+        return filter_invalid_rows(norm_df, min_modis_confidence=float(min_confidence))
+    return norm_df

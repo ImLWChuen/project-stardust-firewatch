@@ -1,5 +1,16 @@
-import pandas as pd
-import io
+"""Backend re-exports of canonical NASA FIRMS CSV parser and validator."""
+from __future__ import annotations
 
-def parse_firms_csv(csv_text: str) -> pd.DataFrame:
-    return pd.read_csv(io.StringIO(csv_text))
+from pipeline.connectors.firms.parser import (
+    DEFAULT_FIRMS_COLUMNS,
+    FIRMSAPIError,
+    parse_firms_csv,
+    validate_firms_response_body,
+)
+
+__all__ = [
+    "DEFAULT_FIRMS_COLUMNS",
+    "FIRMSAPIError",
+    "parse_firms_csv",
+    "validate_firms_response_body",
+]
