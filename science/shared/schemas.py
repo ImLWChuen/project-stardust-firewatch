@@ -4,6 +4,8 @@ from datetime import datetime
 
 @dataclass
 class FireObservationRecord:
+    """Standard internal representation of a single fire observation record."""
+
     latitude: float
     longitude: float
     brightness: float

@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Wraps children with a hover-activated tooltip displaying the given text. */
 export default function Tooltip({ text, children }: { text: string; children: React.ReactNode }) {
   return (
     <div className="relative group inline-block">

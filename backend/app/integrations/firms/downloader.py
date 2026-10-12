@@ -20,4 +20,5 @@ class FIRMSDownloader(CanonicalFIRMSDownloader):
     """Backend FIRMS downloader preserving legacy `download_country` stub."""
 
     def download_country(self, country_code: str, date: str):
+        """Download FIRMS data for the given country code and date (legacy stub)."""
         pass

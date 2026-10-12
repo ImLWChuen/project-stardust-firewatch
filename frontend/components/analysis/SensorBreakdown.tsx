@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Displays the breakdown of fire detections by contributing sensor. */
 export default function SensorBreakdown() {
   return (
     <div className="p-4 bg-slate-900 border border-slate-800 rounded-lg">

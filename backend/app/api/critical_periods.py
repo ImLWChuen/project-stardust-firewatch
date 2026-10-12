@@ -4,6 +4,7 @@ router = APIRouter()
 
 @router.get("/{aoi_id}")
 def get_critical_periods(aoi_id: str):
+    """Return the known critical burning periods for the given area of interest."""
     return [
         {
             "aoi_id": aoi_id,

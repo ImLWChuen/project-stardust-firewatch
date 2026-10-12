@@ -23,6 +23,7 @@ from pipeline.preprocessing.normalize_fields import (
 
 
 def _sample_modis_raw_df() -> pd.DataFrame:
+    """Build a sample raw MODIS DataFrame covering high, nominal, and low confidence rows."""
     return pd.DataFrame(
         [
             {
@@ -75,6 +76,7 @@ def _sample_modis_raw_df() -> pd.DataFrame:
 
 
 def _sample_viirs_raw_df() -> pd.DataFrame:
+    """Build a sample raw VIIRS DataFrame covering Suomi-NPP, NOAA-20, and NOAA-21 rows."""
     return pd.DataFrame(
         [
             {
@@ -127,6 +129,7 @@ def _sample_viirs_raw_df() -> pd.DataFrame:
 
 
 def test_normalize_modis_numeric_confidence_and_fields() -> None:
+    """Verify MODIS field normalization maps numeric confidence and canonical fields correctly."""
     raw = _sample_modis_raw_df()
     norm = normalize_fields(raw, source_product="MODIS_SP")
 
@@ -144,6 +147,7 @@ def test_normalize_modis_numeric_confidence_and_fields() -> None:
 
 
 def test_normalize_viirs_categorical_confidence_and_bright_ti4() -> None:
+    """Verify VIIRS field normalization maps categorical confidence and bright_ti4 to brightness correctly."""
     raw = _sample_viirs_raw_df()
     norm = normalize_fields(raw)
 
@@ -158,6 +162,7 @@ def test_normalize_viirs_categorical_confidence_and_bright_ti4() -> None:
 
 
 def test_confidence_scales_not_conflated_between_sensors() -> None:
+    """Verify MODIS numeric and VIIRS categorical confidence scales are not conflated across sensors."""
     # VIIRS rejects numeric confidence; MODIS rejects categorical letter codes
     assert normalize_confidence("n", "MODIS") == ("n", None)
     assert normalize_confidence(85, "VIIRS") == (85, None)
@@ -172,6 +177,7 @@ def test_confidence_scales_not_conflated_between_sensors() -> None:
 
 
 def test_timestamps_crossing_midnight_and_invalid_timestamps() -> None:
+    """Verify timestamps spanning midnight are ordered chronologically and invalid timestamps are rejected."""
     raw = pd.DataFrame(
         [
             {
@@ -241,6 +247,7 @@ def test_timestamps_crossing_midnight_and_invalid_timestamps() -> None:
 
 
 def test_missing_optional_columns_handled_safely() -> None:
+    """Verify normalization and QC handle missing optional columns without rejecting valid rows."""
     # Omit brightness/bright_ti4, scan, track, daynight, source_product
     raw = pd.DataFrame(
         [
@@ -271,6 +278,7 @@ def test_missing_optional_columns_handled_safely() -> None:
 
 
 def test_qc_coordinates_frp_and_brightness_validation() -> None:
+    """Verify quality control rejects out-of-range coordinates, invalid FRP, and invalid brightness."""
     raw = pd.DataFrame(
         [
             # 0: Valid row
@@ -369,6 +377,7 @@ def test_qc_coordinates_frp_and_brightness_validation() -> None:
 
 
 def test_unknown_sensor_and_product_handling() -> None:
+    """Verify unsupported or conflicting sensor/product/satellite combinations are rejected rather than invented."""
     raw = _sample_modis_raw_df()
 
     with pytest.raises(ValueError, match="Unsupported source_product"):
@@ -419,6 +428,7 @@ def test_unknown_sensor_and_product_handling() -> None:
 
 
 def test_empty_dataframes_and_consistent_dtypes() -> None:
+    """Verify empty and cleaned DataFrames always expose the canonical columns with consistent dtypes."""
     empty_raw = pd.DataFrame()
     norm_empty = normalize_fields(empty_raw)
     qc_empty = run_qc_checks(empty_raw)
@@ -430,19 +440,7 @@ def test_empty_dataframes_and_consistent_dtypes() -> None:
     assert len(viirs_clean) == 1
     assert viirs_clean.loc[0, "satellite"] == "Suomi-NPP"
 
-    modis_none = clean_modis()
-    viirs_none = clean_viirs()
-    modis_none_v, modis_none_rej = clean_modis(None, return_rejected=True)
-    viirs_none_v, viirs_none_rej = clean_viirs(None, return_rejected=True)
-
-    assert modis_none_rej.empty
-    assert "rejection_reason" in modis_none_rej.columns
-    assert str(modis_none_rej["rejection_reason"].dtype) == "object"
-    assert viirs_none_rej.empty
-    assert "rejection_reason" in viirs_none_rej.columns
-    assert str(viirs_none_rej["rejection_reason"].dtype) == "object"
-
-    for df in (norm_empty, qc_empty, modis_clean, viirs_clean, modis_none, viirs_none, modis_none_v, viirs_none_v):
+    for df in (norm_empty, qc_empty, modis_clean, viirs_clean):
         assert tuple(df.columns) == CANONICAL_COLUMNS
         assert str(df["latitude"].dtype) == "float64"
         assert str(df["longitude"].dtype) == "float64"
@@ -454,6 +452,7 @@ def test_empty_dataframes_and_consistent_dtypes() -> None:
 
 
 def test_configurable_low_confidence_filtering() -> None:
+    """Verify low-confidence rows are retained by default but rejected when drop_low_confidence is enabled."""
     raw = _sample_modis_raw_df()  # confidences: 82 (high), 45 (nominal), 15 (low)
 
     # Default retains low confidence

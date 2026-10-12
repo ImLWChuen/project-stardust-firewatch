@@ -3,6 +3,7 @@ import sys
 import subprocess
 
 def main():
+    """Check the local environment and bootstrap project dependencies."""
     print("Project Stardust Setup: Checking environment...")
     print(f"Python version: {sys.version}")
     print("Setup completed successfully.")

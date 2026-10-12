@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Displays the harmonized fire activity index summary card. */
 export default function ActivitySummary() {
   return (
     <div className="p-4 bg-slate-900 border border-slate-800 rounded-lg">

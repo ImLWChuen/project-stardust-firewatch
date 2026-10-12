@@ -6,6 +6,7 @@ export const metadata: Metadata = {
   description: "Cross-sensor satellite fire harmonization and agricultural burning calendar platform",
 };
 
+/** Root layout wrapping every page with the shared HTML shell, dark theme, and global styles. */
 export default function RootLayout({
   children,
 }: {

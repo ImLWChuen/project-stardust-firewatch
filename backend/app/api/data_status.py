@@ -4,6 +4,7 @@ router = APIRouter()
 
 @router.get("/")
 def get_data_status():
+    """Return the current health and freshness status of the ingested data pipeline."""
     return {
         "status": "healthy",
         "latest_satellite_feed": "2026-10-01T20:45:00Z",

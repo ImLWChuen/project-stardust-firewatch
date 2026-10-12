@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Renders a dropdown for selecting the active area of interest. */
 export default function AOISelector() {
   return (
     <select className="bg-slate-900 border border-slate-800 text-slate-200 text-sm rounded px-3 py-2">

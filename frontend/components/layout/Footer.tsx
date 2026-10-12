@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Site-wide footer with copyright and branding text. */
 export default function Footer() {
   return (
     <footer className="border-t border-slate-800 py-4 px-6 text-center text-xs text-slate-500">

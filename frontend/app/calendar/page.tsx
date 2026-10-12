@@ -1,3 +1,4 @@
+/** Agricultural burning calendar page showing historical windows, seasonal predictions, and regional risk windows. */
 export default function CalendarPage() {
   return (
     <div className="p-8">

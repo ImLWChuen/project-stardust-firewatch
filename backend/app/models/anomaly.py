@@ -2,6 +2,8 @@ from dataclasses import dataclass
 
 @dataclass
 class AnomalyModel:
+    """Domain model representing a detected fire activity anomaly."""
+
     id: str
     entity_id: str
     date: str

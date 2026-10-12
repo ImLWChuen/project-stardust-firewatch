@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Renders the color legend explaining burning activity intensity levels. */
 export default function CalendarLegend() {
   return (
     <div className="flex items-center space-x-2 text-xs text-slate-400">

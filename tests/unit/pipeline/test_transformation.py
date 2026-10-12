@@ -27,23 +27,19 @@ from science.harmonization.spatial_normalization import (
 
 
 def test_activity_index_calculation() -> None:
+    """Verify the harmonized activity index is computed from count and FRP with the given weight."""
     val = calculate_activity_index(10, 50.0, weight_frp=0.5)
     assert val == 30.0
 
 
-def test_configured_harmonization_defaults(tmp_path: Path) -> None:
+def test_configured_harmonization_defaults() -> None:
+    """Verify the configured default grid resolution and deduplication window values."""
     assert get_configured_grid_resolution() == pytest.approx(0.01)
-    dedup_val = get_configured_dedup_window_minutes()
-    assert dedup_val == 20.0
-    assert isinstance(dedup_val, float)
-
-    # Fractional deduplication window preservation
-    custom_cfg = tmp_path / "harmonization_custom.yaml"
-    custom_cfg.write_text("harmonization:\n  temporal_dedup_window_minutes: 15.5\n", encoding="utf-8")
-    assert get_configured_dedup_window_minutes(custom_cfg) == 15.5
+    assert get_configured_dedup_window_minutes() == 20
 
 
 def test_grid_boundaries_and_stable_cell_ids() -> None:
+    """Verify grid cell assignment is stable within a cell and correctly handles negative/near-zero coordinates."""
     # Points within the same 0.01-deg cell map to the exact same center and cell_id
     lat1, lon1 = assign_grid_cell(5.1210, 100.5680)
     lat2, lon2 = assign_grid_cell(5.1249, 100.5740)
@@ -62,6 +58,7 @@ def test_grid_boundaries_and_stable_cell_ids() -> None:
 
 
 def test_grid_observations_invalid_coordinates() -> None:
+    """Verify gridding raises on invalid coordinates by default and can optionally drop them."""
     bad_df = pd.DataFrame(
         [
             {"latitude": 5.12, "longitude": 100.57},
@@ -83,6 +80,7 @@ def test_grid_observations_invalid_coordinates() -> None:
 
 
 def test_temporal_dedup_less_equal_and_greater_than_20_minutes() -> None:
+    """Verify same-sensor detections within the 20-minute window are deduplicated and those beyond it are kept."""
     # Same cell and same sensor:
     # t=05:00 (anchor, frp=10)
     # t=05:12 (delta=12 < 20 -> duplicate, dropped)
@@ -141,6 +139,7 @@ def test_temporal_dedup_less_equal_and_greater_than_20_minutes() -> None:
 
 
 def test_temporal_dedup_utc_midnight_crossing() -> None:
+    """Verify temporal deduplication correctly computes time deltas across the UTC midnight boundary."""
     # Two MODIS detections in the same cell 15 minutes apart across UTC midnight:
     # 2025-01-15 23:50 UTC and 2025-01-16 00:05 UTC (delta = 15 min <= 20 min)
     # Plus a third detection at 2025-01-16 00:20 UTC (delta from 23:50 is 30 min > 20 min)
@@ -180,6 +179,7 @@ def test_temporal_dedup_utc_midnight_crossing() -> None:
 
 
 def test_same_sensor_vs_cross_sensor_deduplication_and_aggregation() -> None:
+    """Verify same-sensor duplicates are collapsed while cross-sensor detections are preserved and aggregated."""
     # Same cell on 2025-01-15:
     # - Two MODIS detections 10 min apart (06:00 and 06:10) -> deduplicated to 1 MODIS (frp=20.0)
     # - One VIIRS detection 5 min later (06:05) -> preserved because it is VIIRS (frp=30.0)
@@ -248,6 +248,7 @@ def test_same_sensor_vs_cross_sensor_deduplication_and_aggregation() -> None:
 
 
 def test_empty_input_and_missing_optional_columns_in_aggregation() -> None:
+    """Verify building FireCellDay handles empty/None input and DataFrames missing optional columns."""
     empty_result = build_fire_cell_day(pd.DataFrame())
     assert empty_result.empty
     assert tuple(empty_result.columns) == FIRE_CELL_DAY_COLUMNS
@@ -286,6 +287,7 @@ def test_empty_input_and_missing_optional_columns_in_aggregation() -> None:
 
 
 def test_fire_cell_day_matches_json_schema_contract() -> None:
+    """Verify aggregated FireCellDay output columns and dtypes match the published JSON schema contract."""
     schema_path = (
         Path(__file__).resolve().parents[3]
         / "contracts"

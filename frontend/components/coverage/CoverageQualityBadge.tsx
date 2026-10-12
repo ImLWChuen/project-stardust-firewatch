@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Badge displaying a coverage quality score, styled green when good and yellow otherwise. */
 export default function CoverageQualityBadge({ score }: { score: number }) {
   const isGood = score >= 0.8;
   return (
