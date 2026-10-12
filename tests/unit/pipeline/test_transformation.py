@@ -31,9 +31,16 @@ def test_activity_index_calculation() -> None:
     assert val == 30.0
 
 
-def test_configured_harmonization_defaults() -> None:
+def test_configured_harmonization_defaults(tmp_path: Path) -> None:
     assert get_configured_grid_resolution() == pytest.approx(0.01)
-    assert get_configured_dedup_window_minutes() == 20
+    dedup_val = get_configured_dedup_window_minutes()
+    assert dedup_val == 20.0
+    assert isinstance(dedup_val, float)
+
+    # Fractional deduplication window preservation
+    custom_cfg = tmp_path / "harmonization_custom.yaml"
+    custom_cfg.write_text("harmonization:\n  temporal_dedup_window_minutes: 15.5\n", encoding="utf-8")
+    assert get_configured_dedup_window_minutes(custom_cfg) == 15.5
 
 
 def test_grid_boundaries_and_stable_cell_ids() -> None:

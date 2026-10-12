@@ -97,6 +97,18 @@ def test_canonicalization_noaa20_and_noaa21_mapping() -> None:
     assert rec_n21["sensor"] == "VIIRS"
     assert rec_n21["confidence_norm"] == "high"
 
+    assert rec_n20["daynight"] == "D"
+    assert rec_n21["daynight"] == "N"
+
+    rec_day = canonicalize_observation({"daynight": "day", "latitude": 1.0, "longitude": 100.0})
+    rec_night = canonicalize_observation({"daynight": "night", "latitude": 1.0, "longitude": 100.0})
+    rec_none = canonicalize_observation({"daynight": None, "latitude": 1.0, "longitude": 100.0})
+    rec_missing = canonicalize_observation({"latitude": 1.0, "longitude": 100.0})
+    assert rec_day["daynight"] == "D"
+    assert rec_night["daynight"] == "N"
+    assert rec_none["daynight"] is None
+    assert rec_missing["daynight"] is None
+
     df = pd.DataFrame([rec_n20, rec_n21])
     norm_df = canonicalize_fire_dataframe(df)
     assert norm_df["sensor"].tolist() == ["VIIRS", "VIIRS"]

@@ -44,7 +44,7 @@ def get_configured_grid_resolution(config_path: Path | str | None = None) -> flo
     return float(cfg.get("grid_resolution_deg", DEFAULT_GRID_SIZE_DEG))
 
 
-def get_configured_dedup_window_minutes(config_path: Path | str | None = None) -> int:
+def get_configured_dedup_window_minutes(config_path: Path | str | None = None) -> float:
     """Return configured temporal deduplication window in minutes (default 20)."""
     cfg = load_harmonization_config(config_path)
-    return int(cfg.get("temporal_dedup_window_minutes", DEDUPLICATION_WINDOW_MINUTES))
+    return float(cfg.get("temporal_dedup_window_minutes", DEDUPLICATION_WINDOW_MINUTES))
