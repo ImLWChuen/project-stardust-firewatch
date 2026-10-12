@@ -1,98 +1,224 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "FireObservation",
-  "description": "Canonical representation of a single satellite active fire detection point.",
+  "$schema": "http://json-schema.org/draft/2020-12/schema",
+  "$id": "https://firewatch.project-stardust/schemas/fire-observation.schema.json",
+  "title": "FireWatch FireObservation",
+  "description": "Canonical representation of a single NASA FIRMS active-fire observation.",
   "type": "object",
+  "additionalProperties": false,
   "required": [
+    "id",
+    "sensor",
+    "platform",
+    "product",
+    "processing_mode",
+    "processing_version",
+    "acq_datetime_utc",
     "latitude",
     "longitude",
-    "acq_date",
-    "acq_time",
-    "satellite",
-    "instrument",
-    "frp"
+    "confidence_raw",
+    "fire_type",
+    "day_night"
   ],
   "properties": {
     "id": {
-      "type": "string"
-    },
-    "latitude": {
-      "type": "number",
-      "minimum": -90.0,
-      "maximum": 90.0
-    },
-    "longitude": {
-      "type": "number",
-      "minimum": -180.0,
-      "maximum": 180.0
-    },
-    "acq_date": {
+      "description": "Unique deterministic or UUID identifier for the fire detection point.",
       "type": "string",
-      "format": "date"
+      "minLength": 1
     },
-    "acq_time": {
-      "type": "string",
-      "pattern": "^[0-2][0-9][0-5][0-9]$"
-    },
-    "satellite": {
-      "type": "string",
-      "enum": [
-        "Terra",
-        "Aqua",
-        "Suomi-NPP",
-        "NOAA-20",
-        "NOAA-21"
-      ]
-    },
-    "instrument": {
+    "sensor": {
+      "description": "Remote sensing instrument capturing the thermal anomaly.",
       "type": "string",
       "enum": [
         "MODIS",
         "VIIRS"
       ]
     },
-    "confidence": {
-      "type": [
-        "string",
-        "number"
-      ]
-    },
-    "brightness": {
-      "type": "number"
-    },
-    "bright_t31": {
-      "type": [
-        "number",
-        "null"
-      ]
-    },
-    "bright_ti4": {
-      "type": [
-        "number",
-        "null"
-      ]
-    },
-    "bright_ti5": {
-      "type": [
-        "number",
-        "null"
-      ]
-    },
-    "scan": {
-      "type": "number"
-    },
-    "track": {
-      "type": "number"
-    },
-    "frp": {
-      "type": "number",
-      "minimum": 0.0
-    },
-    "daynight": {
+    "platform": {
+      "description": "Spacecraft platform hosting the sensor.",
       "type": "string",
       "enum": [
-        "D",
-        "N"
+        "Terra",
+        "Aqua",
+        "S-NPP",
+        "NOAA-20",
+        "NOAA-21"
+      ]
+    },
+    "product": {
+      "description": "Specific NASA FIRMS product code (e.g., 'MOD14A1', 'VNP14IMGTDL_NRT').",
+      "type": "string",
+      "minLength": 1
+    },
+    "processing_mode": {
+      "description": "Latency and product tier processing pipeline.",
+      "type": "string",
+      "enum": [
+        "STANDARD",
+        "NRT",
+        "RT",
+        "URT"
+      ]
+    },
+    "processing_version": {
+      "description": "Upstream processing algorithm version string (e.g., 'v1.0', '6.1NRT').",
+      "type": "string",
+      "minLength": 1
+    },
+    "acq_datetime_utc": {
+      "description": "Observation acquisition timestamp in ISO 8601 UTC format (YYYY-MM-DDTHH:MM:SSZ).",
+      "type": "string",
+      "format": "date-time"
+    },
+    "latitude": {
+      "description": "WGS 84 center latitude of the fire pixel.",
+      "type": "number",
+      "minimum": -90,
+      "maximum": 90
+    },
+    "longitude": {
+      "description": "WGS 84 center longitude of the fire pixel.",
+      "type": "number",
+      "minimum": -180,
+      "maximum": 180
+    },
+    "confidence_raw": {
+      "description": "Raw upstream detection confidence: MODIS reports 0-100%, VIIRS reports 'l', 'n', or 'h'.",
+      "oneOf": [
+        {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 100
+        },
+        {
+          "type": "string",
+          "enum": [
+            "l",
+            "n",
+            "h"
+          ]
+        }
+      ]
+    },
+    "confidence_class": {
+      "description": "Standardized categorical confidence mapped across sensors.",
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "LOW",
+        "NOMINAL",
+        "HIGH",
+        null
+      ]
+    },
+    "confidence_scale": {
+      "description": "Indicator specifying which measurement scale was reported in confidence_raw.",
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "PERCENT",
+        "CATEGORY",
+        null
+      ]
+    },
+    "fire_type": {
+      "description": "Normalized classification of the thermal emission source.",
+      "type": "string",
+      "enum": [
+        "VEGETATION_FIRE",
+        "ACTIVE_VOLCANO",
+        "STATIC_LAND_SOURCE",
+        "OFFSHORE",
+        "UNKNOWN"
+      ]
+    },
+    "fire_type_raw": {
+      "description": "Raw FIRMS integer code for fire type (0 = presumed veg, 1 = volcano, 2 = static land, 3 = offshore).",
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 3
+    },
+    "day_night": {
+      "description": "Solar illumination condition at the time of the overpass.",
+      "type": "string",
+      "enum": [
+        "DAY",
+        "NIGHT"
+      ]
+    },
+    "brightness_ti4_kelvin": {
+      "description": "VIIRS channel I-4 (3.74 µm) middle-infrared brightness temperature (Kelvin).",
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "brightness_ti5_kelvin": {
+      "description": "VIIRS channel I-5 (11.45 µm) thermal infrared brightness temperature (Kelvin).",
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "brightness_t31_kelvin": {
+      "description": "MODIS band 31 (11.03 µm) thermal infrared brightness temperature (Kelvin).",
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "frp_mw": {
+      "description": "Fire Radiative Power (MW) measuring thermal energy release rate.",
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "scan_km": {
+      "description": "Cross-track pixel footprint dimension in kilometers (must be positive).",
+      "type": [
+        "number",
+        "null"
+      ],
+      "exclusiveMinimum": 0
+    },
+    "track_km": {
+      "description": "Along-track pixel footprint dimension in kilometers (must be positive).",
+      "type": [
+        "number",
+        "null"
+      ],
+      "exclusiveMinimum": 0
+    },
+    "source_version_raw": {
+      "description": "Upstream data collection or algorithm version code (e.g., '6.1', '2.0').",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "satellite_raw": {
+      "description": "Raw satellite designation code from original payload metadata (e.g., 'T', 'A', 'N').",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "source_file": {
+      "description": "Originating granule, HDF, or CSV filename from which this record was ingested.",
+      "type": [
+        "string",
+        "null"
       ]
     }
   }
