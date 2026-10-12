@@ -187,7 +187,14 @@ class FIRMSClient:
         url = self.build_area_url(source=source, bbox=bbox, day_range=day_range, date=date)
         async with httpx.AsyncClient(timeout=self.timeout) as client:
             resp = await client.get(url)
-            resp.raise_for_status()
+            try:
+                resp.raise_for_status()
+            except httpx.HTTPStatusError as exc:
+                # Hide API key in error message for security
+                safe_url = url.replace(self.map_key, "***") if self.map_key else url
+                raise FIRMSAPIError(
+                    f"FIRMS API HTTP {resp.status_code} for {safe_url}"
+                ) from None
             validate_firms_response_body(resp.text)
             return resp
 

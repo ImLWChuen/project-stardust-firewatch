@@ -430,7 +430,19 @@ def test_empty_dataframes_and_consistent_dtypes() -> None:
     assert len(viirs_clean) == 1
     assert viirs_clean.loc[0, "satellite"] == "Suomi-NPP"
 
-    for df in (norm_empty, qc_empty, modis_clean, viirs_clean):
+    modis_none = clean_modis()
+    viirs_none = clean_viirs()
+    modis_none_v, modis_none_rej = clean_modis(None, return_rejected=True)
+    viirs_none_v, viirs_none_rej = clean_viirs(None, return_rejected=True)
+
+    assert modis_none_rej.empty
+    assert "rejection_reason" in modis_none_rej.columns
+    assert str(modis_none_rej["rejection_reason"].dtype) == "object"
+    assert viirs_none_rej.empty
+    assert "rejection_reason" in viirs_none_rej.columns
+    assert str(viirs_none_rej["rejection_reason"].dtype) == "object"
+
+    for df in (norm_empty, qc_empty, modis_clean, viirs_clean, modis_none, viirs_none, modis_none_v, viirs_none_v):
         assert tuple(df.columns) == CANONICAL_COLUMNS
         assert str(df["latitude"].dtype) == "float64"
         assert str(df["longitude"].dtype) == "float64"

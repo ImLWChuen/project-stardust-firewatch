@@ -6,6 +6,7 @@ from typing import Any
 import pandas as pd
 
 from pipeline.preprocessing.normalize_fields import (
+    DAYNIGHT_MAPPING,
     _is_missing,
     normalize_acq_date,
     normalize_acq_time,
@@ -63,8 +64,12 @@ def canonicalize_observation(record: dict[str, Any]) -> dict[str, Any]:
     raw_conf, norm_conf = normalize_confidence(record.get("confidence"), instrument)
     confidence = raw_conf if raw_conf is not None else record.get("confidence")
 
-    raw_dn = record.get("daynight")
-    daynight = str(raw_dn).strip().upper() if not _is_missing(raw_dn) else None
+    raw_dn = record.get("daynight") if not _is_missing(record.get("daynight")) else record.get("day_night")
+    if _is_missing(raw_dn):
+        daynight = None
+    else:
+        dn_str = str(raw_dn).strip()
+        daynight = DAYNIGHT_MAPPING.get(dn_str.lower(), dn_str)
 
     return {
         "latitude": lat,

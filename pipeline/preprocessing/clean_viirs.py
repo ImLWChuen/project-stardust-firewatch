@@ -16,7 +16,12 @@ def clean_viirs(
 ) -> pd.DataFrame | tuple[pd.DataFrame, pd.DataFrame]:
     """Normalize and filter raw VIIRS fire records."""
     if df is None:
-        return _empty_canonical_dataframe()
+        empty = _empty_canonical_dataframe()
+        if return_rejected:
+            rejected = empty.copy()
+            rejected["rejection_reason"] = pd.Series(dtype="object")
+            return empty, rejected
+        return empty
     return filter_invalid_rows(
         df,
         config=config,

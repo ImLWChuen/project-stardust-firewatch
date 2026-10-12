@@ -76,8 +76,8 @@ def assign_grid_cell(
     lat_steps = round(lat_f / res, 9)
     lon_steps = round(lon_f / res, 9)
 
-    cell_lat = round(float(np.round(lat_steps)) * res, decimals)
-    cell_lon = round(float(np.round(lon_steps)) * res, decimals)
+    cell_lat = round(math.floor(lat_steps + 0.5) * res, decimals)
+    cell_lon = round(math.floor(lon_steps + 0.5) * res, decimals)
 
     cell_lat = max(-90.0, min(90.0, cell_lat))
     cell_lon = max(-180.0, min(180.0, cell_lon))
