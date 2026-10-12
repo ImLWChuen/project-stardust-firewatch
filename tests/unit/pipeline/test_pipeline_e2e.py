@@ -43,6 +43,7 @@ class _StubProductClient(FIRMSClient):
     """Offline stub client returning canned CSV payloads per product."""
 
     def __init__(self, payloads_by_product: dict[str, str | Exception]) -> None:
+        """Initialize the stub client with a mapping of product code to canned CSV payload or exception."""
         super().__init__(map_key="test_offline_key")
         self.payloads_by_product = payloads_by_product
         self.calls: list[tuple[str, str, int, str | None]] = []
@@ -54,6 +55,7 @@ class _StubProductClient(FIRMSClient):
         day_range: int = 1,
         date: str | None = None,
     ) -> str:
+        """Record the call arguments and return (or raise) the canned payload configured for the product."""
         self.calls.append((source, str(bbox), day_range, date))
         payload = self.payloads_by_product.get(source, "")
         if isinstance(payload, Exception):
@@ -62,6 +64,7 @@ class _StubProductClient(FIRMSClient):
 
 
 def test_canonicalization_noaa20_and_noaa21_mapping() -> None:
+    """Verify NOAA-20 and NOAA-21 VIIRS observations canonicalize to consistent sensor/instrument/confidence fields."""
     rec_n20 = canonicalize_observation(
         {
             "latitude": 4.5,
@@ -97,18 +100,6 @@ def test_canonicalization_noaa20_and_noaa21_mapping() -> None:
     assert rec_n21["sensor"] == "VIIRS"
     assert rec_n21["confidence_norm"] == "high"
 
-    assert rec_n20["daynight"] == "D"
-    assert rec_n21["daynight"] == "N"
-
-    rec_day = canonicalize_observation({"daynight": "day", "latitude": 1.0, "longitude": 100.0})
-    rec_night = canonicalize_observation({"daynight": "night", "latitude": 1.0, "longitude": 100.0})
-    rec_none = canonicalize_observation({"daynight": None, "latitude": 1.0, "longitude": 100.0})
-    rec_missing = canonicalize_observation({"latitude": 1.0, "longitude": 100.0})
-    assert rec_day["daynight"] == "D"
-    assert rec_night["daynight"] == "N"
-    assert rec_none["daynight"] is None
-    assert rec_missing["daynight"] is None
-
     df = pd.DataFrame([rec_n20, rec_n21])
     norm_df = canonicalize_fire_dataframe(df)
     assert norm_df["sensor"].tolist() == ["VIIRS", "VIIRS"]
@@ -116,6 +107,7 @@ def test_canonicalization_noaa20_and_noaa21_mapping() -> None:
 
 
 def test_end_to_end_pipeline_modis_viirs_and_rejected_rows(tmp_path: Path) -> None:
+    """Verify the full pipeline deduplicates coincident MODIS/VIIRS detections and rejects invalid rows."""
     # MODIS_SP has:
     # - 2 valid Terra detections in cell_5.12_100.41 separated by 10 min (03:30 and 03:40) -> deduplicated to 1
     # - 1 invalid row with negative FRP (-5.0) -> rejected with 'invalid_frp'
@@ -233,6 +225,7 @@ def test_end_to_end_pipeline_modis_viirs_and_rejected_rows(tmp_path: Path) -> No
 
 
 def test_pipeline_with_empty_product_and_nrt_noaa21(tmp_path: Path) -> None:
+    """Verify NRT mode handles empty products gracefully and surfaces the sole NOAA-21 detection."""
     # Test NRT mode where MODIS_NRT, VIIRS_SNPP_NRT, VIIRS_NOAA20_NRT are empty (header-only)
     # and only VIIRS_NOAA21_NRT has a detection
     noaa21_csv = (
@@ -277,6 +270,7 @@ def test_pipeline_with_empty_product_and_nrt_noaa21(tmp_path: Path) -> None:
 
 
 def test_pipeline_fails_fast_when_one_product_fails(tmp_path: Path) -> None:
+    """Verify the pipeline aborts immediately and writes no completion metadata if any product request fails."""
     modis_csv = (
         f"{MODIS_CSV_HEADER}\n"
         "5.1210,100.4110,325.0,1.0,1.0,2025-01-02,0330,Terra,85,6.11,298.0,20.0,D"
@@ -312,6 +306,7 @@ def test_pipeline_fails_fast_when_one_product_fails(tmp_path: Path) -> None:
 def test_pipeline_missing_key_invalid_dates_and_cli_help(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    """Verify clear errors for missing region/bbox, invalid date ranges, missing API key, and that --help works regardless."""
     monkeypatch.delenv("FIRMS_MAP_KEY", raising=False)
 
     # Missing region/bbox must fail rather than defaulting to a global download

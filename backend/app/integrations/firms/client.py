@@ -43,6 +43,7 @@ class FIRMSClient(CanonicalFIRMSClient):
         base_url: str | None = None,
         timeout: float = 30.0,
     ):
+        """Initialize the client with an optional map key, base URL, and request timeout."""
         super().__init__(map_key=map_key, base_url=base_url, timeout=timeout)
 
     async def fetch_area(

@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Displays the active critical burning period window. */
 export default function CriticalPeriod() {
   return (
     <div className="p-4 bg-slate-900 border border-slate-800 rounded-lg">

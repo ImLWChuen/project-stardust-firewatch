@@ -11,12 +11,14 @@ if config.config_file_name is not None:
 target_metadata = None
 
 def run_migrations_offline():
+    """Run migrations in 'offline' mode, emitting SQL against the configured URL without a live DB connection."""
     url = config.get_main_option("sqlalchemy.url")
     context.configure(url=url, target_metadata=target_metadata, literal_binds=True)
     with context.begin_transaction():
         context.run_migrations()
 
 def run_migrations_online():
+    """Run migrations in 'online' mode, connecting to the database and executing migrations directly."""
     connectable = engine_from_config(
         config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",

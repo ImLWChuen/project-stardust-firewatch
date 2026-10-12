@@ -5,6 +5,7 @@ router = APIRouter()
 
 @router.get("/{aoi_id}", response_model=BurningCalendarResponse)
 def get_burning_calendar(aoi_id: str, year: int = 2026):
+    """Return the burning calendar for the given area of interest and year."""
     return {
         "aoi_id": aoi_id,
         "year": year,

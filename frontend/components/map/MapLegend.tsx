@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Renders the map legend explaining hotspot intensity (FRP) color coding. */
 export default function MapLegend() {
   return (
     <div className="p-3 bg-slate-900 border border-slate-800 rounded text-xs space-y-1">

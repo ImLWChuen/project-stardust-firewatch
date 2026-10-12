@@ -118,6 +118,7 @@ def _process_dataframe(
     run_qc: bool,
     qc_config: QCConfig | None,
 ) -> pd.DataFrame:
+    """Run quality control, gridding, deduplication, and daily aggregation on a single DataFrame of observations."""
     if work.empty:
         return _empty_fire_cell_day_dataframe()
 

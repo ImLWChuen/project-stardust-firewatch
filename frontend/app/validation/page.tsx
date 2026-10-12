@@ -1,3 +1,4 @@
+/** Scientific validation page showing coincident overlap statistics, bias metrics, and model fidelity benchmarks. */
 export default function ValidationPage() {
   return (
     <div className="p-8">

@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Site-wide header displaying the application brand and tagline. */
 export default function Header() {
   return (
     <header className="h-16 border-b border-slate-800 bg-slate-900/50 backdrop-blur px-6 flex items-center justify-between">

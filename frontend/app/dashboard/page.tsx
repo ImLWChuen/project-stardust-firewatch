@@ -1,3 +1,4 @@
+/** Operations dashboard page showing a real-time overview of active satellite fire detections and alerts. */
 export default function DashboardPage() {
   return (
     <div className="p-8">

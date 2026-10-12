@@ -37,6 +37,7 @@ from science.harmonization.temporal_normalization import validate_window_minutes
 
 
 def _resolve_dir(override: str | Path | None, default_path: Path, name: str) -> Path:
+    """Resolve a directory override to a Path, falling back to the default path when unset."""
     if override is None:
         return default_path
     if not isinstance(override, (str, Path)):

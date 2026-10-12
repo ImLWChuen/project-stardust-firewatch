@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Primary navigation sidebar linking to the main application sections. */
 export default function Sidebar() {
   return (
     <aside className="w-64 border-r border-slate-800 bg-slate-900/30 p-4 space-y-2">
