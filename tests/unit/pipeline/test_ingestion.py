@@ -64,6 +64,7 @@ CSV_ROW_2 = "5.8,100.6,320.1,1.1,1.0,2025-01-06,0715,Aqua,90,6.1,298.0,22.4,D"
 
 
 def test_parse_firms():
+    """Verify a single-row FIRMS CSV sample parses into the expected DataFrame."""
     csv_sample = "latitude,longitude,brightness,scan,track,acq_date,acq_time,satellite,confidence,version,bright_t31,frp,daynight\n5.1,100.2,312.4,1.0,1.0,2026-03-01,0630,Terra,85,6.1NRT,295.1,15.2,D"
     df = parse_firms_csv(csv_sample)
     assert len(df) == 1
@@ -71,6 +72,7 @@ def test_parse_firms():
 
 
 def test_parse_firms_empty_and_header_only():
+    """Verify parsing empty, whitespace-only, and header-only CSV text returns empty DataFrames."""
     empty_df = parse_firms_csv("")
     assert empty_df.empty
     assert "latitude" in empty_df.columns
@@ -96,11 +98,13 @@ def test_parse_firms_empty_and_header_only():
     ],
 )
 def test_parse_firms_rejects_plain_text_errors(error_body: str):
+    """Verify non-CSV error response bodies raise FIRMSAPIError instead of being parsed."""
     with pytest.raises(FIRMSAPIError):
         parse_firms_csv(error_body)
 
 
 def test_products_sp_vs_nrt_and_no_invented_noaa21_sp():
+    """Verify SP/NRT product selection per sensor and that no fictitious NOAA-21 SP product exists."""
     assert "VIIRS_NOAA21_SP" not in PRODUCTS
     with pytest.raises(ValueError, match="Unsupported FIRMS product"):
         validate_product("VIIRS_NOAA21_SP")
@@ -126,6 +130,7 @@ def test_products_sp_vs_nrt_and_no_invented_noaa21_sp():
 
 
 def test_validate_day_range():
+    """Verify day_range validation accepts 1-5 and rejects out-of-range values and wrong types."""
     for valid_days in (1, 2, 3, 4, 5):
         assert validate_day_range(valid_days) == valid_days
 
@@ -139,6 +144,7 @@ def test_validate_day_range():
 
 
 def test_validate_bbox():
+    """Verify bbox validation normalizes valid input and rejects malformed or out-of-range bounds."""
     assert validate_bbox("100.0,5.5,101.0,6.5") == "100.0,5.5,101.0,6.5"
     assert validate_bbox([100.0, 5.5, 101.0, 6.5]) == "100.0,5.5,101.0,6.5"
 
@@ -163,6 +169,7 @@ def test_validate_bbox():
 
 
 def test_client_env_key_and_optional_date(monkeypatch: pytest.MonkeyPatch):
+    """Verify client map key resolution from environment, URL redaction, and area URL building with/without a date."""
     monkeypatch.delenv("FIRMS_MAP_KEY", raising=False)
     with pytest.raises(ValueError, match="FIRMS_MAP_KEY"):
         FIRMSClient()
@@ -195,10 +202,12 @@ def test_client_env_key_and_optional_date(monkeypatch: pytest.MonkeyPatch):
 
 
 def test_client_fetch_area_csv_and_http_200_error_body(monkeypatch: pytest.MonkeyPatch):
+    """Verify fetch_area_csv returns CSV text on success and raises FIRMSAPIError on an HTTP 200 error body."""
     requested_urls: list[str] = []
     mock_body = f"{CSV_HEADER}\n{CSV_ROW_1}\n"
 
     async def mock_get(self, url: str, *args, **kwargs) -> httpx.Response:
+        """Stub httpx GET that records the requested URL and returns a canned CSV response."""
         requested_urls.append(url)
         request = httpx.Request("GET", url)
         return httpx.Response(200, text=mock_body, request=request)
@@ -227,6 +236,7 @@ def test_client_fetch_area_csv_and_http_200_error_body(monkeypatch: pytest.Monke
 
 
 def test_31_day_date_chunking():
+    """Verify a 31-day range is chunked into six 5-day windows plus a final 1-day window."""
     chunks = chunk_date_range("2025-01-01", "2025-01-31")
     lengths = [days for _, days in chunks]
     assert lengths == [5, 5, 5, 5, 5, 5, 1]
@@ -245,10 +255,14 @@ def test_31_day_date_chunking():
 
 
 def test_downloader_dest_dir_creation_and_date_range_merge(tmp_path):
+    """Verify the downloader creates nested destination directories and correctly merges chunked date-range downloads."""
     calls: list[tuple[str, str, int, str | None]] = []
 
     class StubFIRMSClient(FIRMSClient):
+        """Stub FIRMS client that records calls and returns a single-row canned CSV."""
+
         def __init__(self):
+            """Initialize the stub client with a fixed test map key."""
             super().__init__(map_key="stub_key")
 
         async def fetch_area_csv(
@@ -258,6 +272,7 @@ def test_downloader_dest_dir_creation_and_date_range_merge(tmp_path):
             day_range: int = 1,
             date: str | None = None,
         ) -> str:
+            """Record the call arguments and return a canned single-row CSV response."""
             calls.append((source, str(bbox), day_range, date))
             row = f"5.1,100.2,312.4,1.0,1.0,{date or '2025-01-01'},0630,Terra,85,6.1,295.1,15.2,D"
             return f"{CSV_HEADER}\n{row}\n"
@@ -305,6 +320,7 @@ def test_downloader_dest_dir_creation_and_date_range_merge(tmp_path):
 
 
 def test_combine_csv_chunks_handles_empty_chunks():
+    """Verify combining CSV chunks skips empty and header-only chunks without duplicating headers."""
     c1 = f"{CSV_HEADER}\n{CSV_ROW_1}\n"
     c2 = f"{CSV_HEADER}\n"  # header-only chunk
     c3 = ""  # completely empty chunk
@@ -316,6 +332,7 @@ def test_combine_csv_chunks_handles_empty_chunks():
 
 
 def test_region_lookup_and_global_configuration():
+    """Verify known regions resolve to their configured bounding boxes, including global/world aliases."""
     regions = load_regions_config()
     assert "malaysia" in regions
     assert "indonesia" in regions
@@ -339,6 +356,7 @@ def test_region_lookup_and_global_configuration():
 
 
 def test_invalid_region_and_malformed_regions_config(tmp_path):
+    """Verify unknown regions, missing arguments, and malformed region config files raise appropriate errors."""
     with pytest.raises(ValueError, match="Unknown region"):
         resolve_region_bbox(region="atlantis")
 
@@ -358,6 +376,7 @@ def test_invalid_region_and_malformed_regions_config(tmp_path):
 
 
 def test_cli_help_without_api_key(monkeypatch: pytest.MonkeyPatch, capsys):
+    """Verify each ingestion CLI's --help output succeeds and lists expected options even without an API key."""
     monkeypatch.delenv("FIRMS_MAP_KEY", raising=False)
     for parser_factory in (build_modis_parser, build_viirs_parser, build_all_parser):
         parser = parser_factory()
@@ -373,6 +392,7 @@ def test_cli_help_without_api_key(monkeypatch: pytest.MonkeyPatch, capsys):
 
 
 def test_ingestion_requires_explicit_arguments():
+    """Verify ingestion functions raise ValueError when required region/bbox or date arguments are missing."""
     with pytest.raises(ValueError, match="Explicit 'region' or 'bbox'"):
         download_modis_data()
     with pytest.raises(ValueError, match="Explicit 'region' or 'bbox'"):
@@ -384,11 +404,15 @@ def test_ingestion_requires_explicit_arguments():
 
 
 def test_ingestion_orchestration_sp_and_nrt_and_empty_results(tmp_path):
+    """Verify orchestrated SP and NRT ingestion runs request the correct products and handle empty results."""
     calls: list[tuple[str, str, int, str | None]] = []
     return_empty = False
 
     class StubFIRMSClient(FIRMSClient):
+        """Stub FIRMS client that can simulate either populated or empty responses."""
+
         def __init__(self):
+            """Initialize the stub client with a fixed test map key."""
             super().__init__(map_key="stub_test_key")
 
         async def fetch_area_csv(
@@ -398,6 +422,7 @@ def test_ingestion_orchestration_sp_and_nrt_and_empty_results(tmp_path):
             day_range: int = 1,
             date: str | None = None,
         ) -> str:
+            """Record the call arguments and return either a header-only or single-row canned CSV response."""
             calls.append((source, str(bbox), day_range, date))
             if return_empty:
                 return f"{CSV_HEADER}\n"
@@ -466,6 +491,7 @@ def test_ingestion_orchestration_sp_and_nrt_and_empty_results(tmp_path):
 
 
 def test_settings_and_env_directory_resolution(monkeypatch: pytest.MonkeyPatch):
+    """Verify data directory resolution from environment variables and that settings redact the FIRMS map key."""
     monkeypatch.setenv("DATA_RAW_DIR", "/tmp/stardust_raw")
     monkeypatch.setenv("DATA_INTERIM_DIR", "/tmp/stardust_interim")
     monkeypatch.setenv("DATA_PROCESSED_DIR", "/tmp/stardust_processed")

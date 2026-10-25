@@ -94,6 +94,7 @@ class FIRMSDownloader:
     """Manages downloading and persisting NASA FIRMS CSV datasets."""
 
     def __init__(self, client: FIRMSClient | None = None, dest_dir: str = "."):
+        """Initialize the downloader with a FIRMS client and destination directory, creating the directory if needed."""
         self.client = client
         self.dest_dir = dest_dir
         self.last_download_metadata: dict[str, Any] | None = None
@@ -110,11 +111,13 @@ class FIRMSDownloader:
         return chunk_date_range(start_date=start_date, end_date=end_date, max_days=max_days)
 
     def _require_client(self) -> FIRMSClient:
+        """Return the configured client or raise if none was provided."""
         if self.client is None:
             raise ValueError("FIRMSDownloader requires a configured FIRMSClient instance.")
         return self.client
 
     def _prepare_output_path(self, output_filename: str) -> str:
+        """Resolve the output filename to an absolute path under dest_dir, creating parent directories as needed."""
         os.makedirs(self.dest_dir, exist_ok=True)
         out_path = os.path.join(self.dest_dir, output_filename)
         parent_dir = os.path.dirname(out_path)

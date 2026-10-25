@@ -2,6 +2,7 @@ import Header from "@/components/layout/Header";
 import Sidebar from "@/components/layout/Sidebar";
 import Footer from "@/components/layout/Footer";
 
+/** Landing page assembling the header, sidebar, main dashboard summary, and footer. */
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">

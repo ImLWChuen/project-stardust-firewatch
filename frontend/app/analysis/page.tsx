@@ -1,3 +1,4 @@
+/** Harmonization and sensor analysis page showing cross-sensor regression and spatial normalization comparisons. */
 export default function AnalysisPage() {
   return (
     <div className="p-8">

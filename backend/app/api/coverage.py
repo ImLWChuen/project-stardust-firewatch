@@ -4,6 +4,7 @@ router = APIRouter()
 
 @router.get("/{aoi_id}")
 def get_coverage(aoi_id: str):
+    """Return satellite overpass coverage metrics for the given area of interest."""
     return {
         "aoi_id": aoi_id,
         "overpass_count_24h": 4,

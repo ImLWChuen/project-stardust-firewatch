@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Displays the current anomaly rating relative to the seasonal mean. */
 export default function AnomalySummary() {
   return (
     <div className="p-4 bg-slate-900 border border-slate-800 rounded-lg">

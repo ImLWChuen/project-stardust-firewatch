@@ -2,5 +2,6 @@
 from datetime import datetime
 
 def parse_acq_datetime(acq_date: str, acq_time: str) -> datetime:
+    """Combine an acquisition date and zero-padded HHMM time string into a datetime."""
     time_str = str(acq_time).zfill(4)
     return datetime.strptime(f"{acq_date} {time_str}", "%Y-%m-%d %H%M")

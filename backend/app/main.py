@@ -22,4 +22,5 @@ app.include_router(api_router, prefix="/api/v1")
 
 @app.get("/")
 def root():
+    """Return a welcome message and link to the API documentation."""
     return {"message": "Welcome to Project Stardust API", "docs": "/docs"}

@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Renders the annual burning calendar grid, one cell per month. */
 export default function BurningCalendar() {
   return (
     <div className="p-6 bg-slate-900 border border-slate-800 rounded-xl">

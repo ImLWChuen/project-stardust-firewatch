@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Badge displaying a sensor name, colored by sensor family (MODIS vs VIIRS). */
 export default function SensorBadge({ sensor }: { sensor: string }) {
   const isModis = sensor.toUpperCase().includes('MODIS');
   return (

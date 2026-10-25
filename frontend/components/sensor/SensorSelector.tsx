@@ -1,5 +1,6 @@
 import React from 'react';
 
+/** Renders buttons for filtering displayed data by sensor. */
 export default function SensorSelector() {
   return (
     <div className="flex items-center space-x-2 text-xs">

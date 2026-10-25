@@ -2,6 +2,8 @@ from dataclasses import dataclass
 
 @dataclass
 class FireObservationModel:
+    """Domain model representing a single raw satellite fire observation."""
+
     id: str
     latitude: float
     longitude: float

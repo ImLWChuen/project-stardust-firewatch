@@ -140,6 +140,7 @@ class FIRMSClient:
         base_url: str | None = None,
         timeout: float = 30.0,
     ):
+        """Initialize the client, resolving the map key and base URL from arguments or environment variables."""
         resolved_key = map_key if map_key is not None else os.environ.get("FIRMS_MAP_KEY", "")
         self.map_key = resolved_key.strip() if isinstance(resolved_key, str) else ""
         if not self.map_key or self.map_key == "your_firms_map_key_here":
@@ -156,6 +157,7 @@ class FIRMSClient:
         self.timeout = float(timeout)
 
     def __repr__(self) -> str:
+        """Return a debug-friendly representation with the map key redacted."""
         return f"FIRMSClient(base_url={self.base_url!r}, map_key='***', timeout={self.timeout})"
 
     def build_area_url(
@@ -187,14 +189,7 @@ class FIRMSClient:
         url = self.build_area_url(source=source, bbox=bbox, day_range=day_range, date=date)
         async with httpx.AsyncClient(timeout=self.timeout) as client:
             resp = await client.get(url)
-            try:
-                resp.raise_for_status()
-            except httpx.HTTPStatusError as exc:
-                # Hide API key in error message for security
-                safe_url = url.replace(self.map_key, "***") if self.map_key else url
-                raise FIRMSAPIError(
-                    f"FIRMS API HTTP {resp.status_code} for {safe_url}"
-                ) from None
+            resp.raise_for_status()
             validate_firms_response_body(resp.text)
             return resp
 
